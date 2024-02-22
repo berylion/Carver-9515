@@ -116,7 +116,7 @@ public class Robot extends TimedRobot {
     DifferentialDrive drive;
 
 
-    public Drivetrain(){  //public is an error
+    // public Drivetrain(){  //public is an error
       
     frontLeft = new PWMSparkMax(Constants.front_Left);
     frontLeft.setinverted(true);
