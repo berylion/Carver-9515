@@ -140,8 +140,7 @@ public class Robot extends TimedRobot {
 
     }
     public void drivewithjoysticks(XboxController,double speed){ //Xboxcontroller is an error
-      drive.tankDrive(controller.getRawAxis(Constants.Xbox_Left_Y_Axis)speed, //speed is an error but im geussing there's supposed to be a number there
-      controller.getRawAxis(COnstants.Xbox_Right_Y_Axis)speed);
+      drive.tankDrive(controller.getLeftY(), controller.getRightY());
     }
     public void driveForward(double speed)
     {
