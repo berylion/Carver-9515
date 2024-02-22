@@ -10,11 +10,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+//import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj2.command.SubsystemBase; //shows yellow error
-import frc.robot.Constants; //shows red error
+// import edu.wpi.first.wpilibj2.command.SubsystemBase; //shows yellow error # you had a duplicate
+// import frc.robot.Constants; //shows red error # we are no longer using constants
+
+
+
 
 
 
@@ -134,12 +137,12 @@ public class Robot extends TimedRobot {
     backRight = new addfollower(frontRight);
 
     drive = new DifferentialDrive(frontLeft, frontRight);
-    }
+    //}
     @Override
     public void periodic(){
 
     }
-    public void drivewithjoysticks(XboxController,double speed){ //Xboxcontroller is an error
+    public void drivewithjoysticks(XboxController controller ,double speed){ //Xboxcontroller is an error
       drive.tankDrive(controller.getLeftY(), controller.getRightY());
     }
     public void driveForward(double speed)
