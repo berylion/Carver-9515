@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.SubsystemBase; //shows yellow error
+import frc.robot.Constants; //shows red error
 
 
 
@@ -104,19 +104,19 @@ public class Robot extends TimedRobot {
     upperI.set(0);
   }
 
-    public class Drivetrain extends SubsystemBase {
+    class Drivetrain extends SubsystemBase {
 
     PWMSparkMax frontLeft;
     PWMSparkMax frontRight;
     PWMSparkMax backLeft;
     PWMSparkMax backRight;
     
-    backLeft.addfollower(frontLeft);
+    backLeft.addfollower(frontLeft); //addfolower is an error, the end parenthesis is an error
     backRight.addfollower(frontLeft);
     DifferentialDrive drive;
 
 
-    public Drivetrain(){
+    public Drivetrain(){  //public is an error
       
     frontLeft = new PWMSparkMax(Constants.front_Left);
     frontLeft.setinverted(true);
@@ -139,8 +139,8 @@ public class Robot extends TimedRobot {
     public void periodic(){
 
     }
-    public void drivewithjoysticks(XboxController,double speed){
-      drive.tankDrive(controller.getRawAxis(Constants.Xbox_Left_Y_Axis)speed,
+    public void drivewithjoysticks(XboxController,double speed){ //Xboxcontroller is an error
+      drive.tankDrive(controller.getRawAxis(Constants.Xbox_Left_Y_Axis)speed, //speed is an error but im geussing there's supposed to be a number there
       controller.getRawAxis(COnstants.Xbox_Right_Y_Axis)speed);
     }
     public void driveForward(double speed)
