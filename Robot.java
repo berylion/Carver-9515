@@ -4,17 +4,15 @@
 
 package frc.robot;
 
-
-import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-//import frc.robot.Constants; 
 
+// added imports below
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.XboxController;
 
 
 /**
@@ -24,20 +22,30 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  * project.
  */
 public class Robot extends TimedRobot {
-
-  PWMSparkMax frontLeft = new PWMSparkMax(0);
-  PWMSparkMax backLeft = new PWMSparkMax(1);
-  PWMSparkMax frontRight = new PWMSparkMax(2);
-  PWMSparkMax backRight = new PWMSparkMax(3);
-  PWMSparkMax upperI = new PWMSparkMax(4);
-  PWMSparkMax lowerI = new PWMSparkMax(5);
-
-
-
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
+  private static final String kDefaultAuto = "Default"; //goes across line
+  private static final String kspeakermiddle = "speakermiddle";
+  private static final String kRedLongAuto = "Red Long Speaker";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  private final PWMSparkMax leftFront = new PWMSparkMax(0);
+  private final PWMSparkMax leftRear = new PWMSparkMax(1);
+  private final PWMSparkMax rightFront = new PWMSparkMax(2);
+  private final PWMSparkMax rightRear = new PWMSparkMax(3);
+
+  private final PWMSparkMax intake1 = new PWMSparkMax(4);
+  private final PWMSparkMax intake2 = new PWMSparkMax(5);
+
+  private final PWMSparkMax shooter = new PWMSparkMax(6);
+
+  private final Servo exampleServo1 = new Servo(9);
+
+
+  private final Timer timer1 = new Timer();
+
+  private final XboxController driverController = new XboxController(0);
+  private final XboxController operatorController = new XboxController(1);
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -46,8 +54,15 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
+    m_chooser.addOption("speakermiddle", kspeakermiddle);
+    m_chooser.addOption("Red Long Speaker", kRedLongAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    leftFront.setInverted(true);
+    rightFront.setInverted(true);
+    shooter.setInverted(false);
+
+    timer1.start();
   }
 
   /**
@@ -75,12 +90,82 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+    timer1.reset();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-
+    switch (m_autoSelected) {
+      case kRedLongAuto:
+        if(timer1.get() < 2.0){  //flicking note into shooter
+        }
+        else if(timer1.get() < 5.0){  //turn on feedwheel to launch note
+          shooter.set(.98);
+        }
+        else if(timer1.get() < 6.5){  //back up
+          shooter.set(0);
+          leftFront.set(.4);
+          leftRear.addFollower(leftFront);
+          rightFront.set(.4);
+          rightRear.addFollower(rightFront); 
+        }
+        else if(timer1.get() < 7.5){  //turning
+          leftFront.set(-.4);
+          leftRear.addFollower(leftFront);
+          rightFront.set(.4);
+          rightRear.addFollower(rightFront); 
+        }
+        else if(timer1.get() < 9.5){
+          leftFront.set(.5);
+          leftRear.addFollower(leftFront);
+          rightFront.set(.5);
+          rightRear.addFollower(rightFront);
+        }
+        else{  //turn off all motors
+          shooter.set(0);
+          leftFront.set(0);
+          leftRear.addFollower(leftFront);
+          rightFront.set(0);
+          rightRear.addFollower(rightFront);
+        } 
+        break;
+      case kspeakermiddle:  //speakermiddle autonomous
+        if(timer1.get() < 5.0){  //turn on feedwheel to launch note
+          shooter.set(.98);
+        }
+        else if(timer1.get() < 6.5){  //back up
+          shooter.set(0);
+          leftFront.set(.4);
+          leftRear.addFollower(leftFront);
+          rightFront.set(.4);
+          rightRear.addFollower(rightFront); 
+        }
+        else{  //turn off all motors
+          shooter.set(0);
+          leftFront.set(0);
+          leftRear.addFollower(leftFront);
+          rightFront.set(0);
+          rightRear.addFollower(rightFront); 
+        }
+        break;
+      case kDefaultAuto:
+      default:
+        // Put default auto code here
+        if(timer1.get() < 2.0){
+          leftFront.set(.4);
+          leftRear.addFollower(leftFront);
+          rightFront.set(.4);
+          rightRear.addFollower(rightFront); 
+        }else{
+          leftFront.set(0);
+          leftRear.addFollower(leftFront);
+          rightFront.set(0);
+          rightRear.addFollower(rightFront); 
+        }
+        break;
+    } 
   }
 
   /** This function is called once when teleop is enabled. */
@@ -90,72 +175,36 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-  
-  XboxController controller = new XboxController(0);
-  //XboxController controller2 = new XboxController(1);
-  
-
-  if(controller.getBButtonPressed()){
-    lowerI.set(1);
-    upperI.set(1);
-  }else if(controller.getBButtonReleased()){
-    lowerI.set(0);
-    upperI.set(0);
-  }
-
-     class Drivetrain extends SubsystemBase {
-
-    PWMSparkMax frontLeft;
-    PWMSparkMax frontRight;
-    PWMSparkMax backLeft;
-    PWMSparkMax backRight;
-    
-    backLeft.addfollower(frontLeft); 
-    backRight.addfollower(frontLeft);
-    DifferentialDrive drive;
-
-
-     public Drivetrain(){  
-      
-    frontLeft = new PWMSparkMax(Constants.front_Left);
-    frontLeft.setinverted(true);
-
-    backLeft = new PWMSparkMax(Constants.back_Left);
-    backLeft.setinverted(true);
-
-    frontRight = new PWMSparkMax(Constants.front_Right);
-    frontRight.setInverted(false);
-
-    backRight = new PWMSparkMax(Constants.back_Right);
-    backRight.setInverted(false);
-
-    backLeft = new addfollower(frontLeft);
-    backRight = new addfollower(frontRight);
-
-    drive = new DifferentialDrive(frontLeft, frontRight);
+    /*tank drive controls */
+    //left side controls
+    leftFront.set(driverController.getLeftY());
+    leftRear.addFollower(leftFront);
+    //right side controls
+    rightFront.set(-driverController.getRightY());
+    rightRear.addFollower(rightFront);
+    //-----------------------------------------------
+    /*intake controls */
+    if(driverController.getRightBumperPressed()){
+      intake1.set(.98);
+      //intake2.set(.98);
+    }else if(driverController.getRightBumperReleased()){
+      intake1.set(0);
+      intake2.set(0);
     }
-    @Override
-    public void periodic(){
-
+    //-----------------------------------------------
+    /*shooter controls (Y-split) */
+    if(driverController.getYButton()){
+      shooter.set(.98);
+    }else if(driverController.getXButton()){
+      shooter.set(.0);
     }
-    public void drivewithjoysticks(XboxController controller,double speed){ 
-      drive.tankDrive(controller.getLeftY(), controller.getRightY());
+    //-----------------------------------------------
+    /*servo controls */
+    if(operatorController.getYButton()){
+      exampleServo1.setPosition(.5);
+    }else{
+      exampleServo1.setPosition(1);
     }
-    public void driveForward(double speed)
-    {
-      drive.tankDrive(-1, -1);
-    }
-    public void stop()
-    {
-      drive.stopMotor();
-    }
-
-
-  }
-
-
-
-
 
   }
 
