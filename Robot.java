@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private final PWMSparkMax leftRear = new PWMSparkMax(1);
   private final PWMSparkMax rightFront = new PWMSparkMax(2);
   private final PWMSparkMax rightRear = new PWMSparkMax(3);
-
+  private final PWMSparkMax Note = new PWMSparkMax(8);
   private final PWMSparkMax intake1 = new PWMSparkMax(4);
   private final PWMSparkMax intake2 = new PWMSparkMax(5);
 
@@ -184,10 +184,21 @@ public class Robot extends TimedRobot {
     rightRear.addFollower(rightFront);
     //-----------------------------------------------
     /*intake controls */
-    if(driverController.getRightBumperPressed()){
-      intake1.set(.98);
+    if(operatorController.getRightBumperPressed()){
+      intake1.set(.70);
+      intake2.set(.80);
+
+     
       //intake2.set(.98);
-    }else if(driverController.getRightBumperReleased()){
+    }else if(operatorController.getRightBumperReleased()){
+      intake1.set(0);
+      intake2.set(0);
+    }
+    if(operatorController.getLeftBumperPressed()){
+      intake1.set(-.70);
+      intake2.set(-80);
+      //intake2.set(.98);
+    }else if(operatorController.getLeftBumperReleased()){
       intake1.set(0);
       intake2.set(0);
     }
@@ -204,6 +215,12 @@ public class Robot extends TimedRobot {
       exampleServo1.setPosition(.5);
     }else{
       exampleServo1.setPosition(1);
+    }
+    /*note controls */
+    if(operatorController.getYButtonPressed()){
+      Note.set(.80);
+    }else if(operatorController.getXButtonReleased()){
+      Note.set(.0);
     }
 
   }
