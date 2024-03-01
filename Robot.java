@@ -11,8 +11,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // added imports below
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.Timer;
+
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 
 /**
@@ -32,13 +38,17 @@ public class Robot extends TimedRobot {
   private final PWMSparkMax leftRear = new PWMSparkMax(1);
   private final PWMSparkMax rightFront = new PWMSparkMax(2);
   private final PWMSparkMax rightRear = new PWMSparkMax(3);
-  private final PWMSparkMax Note = new PWMSparkMax(8);
+
   private final PWMSparkMax intake1 = new PWMSparkMax(4);
   private final PWMSparkMax intake2 = new PWMSparkMax(5);
 
   private final PWMSparkMax shooter = new PWMSparkMax(6);
 
   private final Servo exampleServo1 = new Servo(9);
+  private final PWMSparkMax Note = new PWMSparkMax(8);
+
+  // private final Pneumatics m_Pneumatics = new Pneumatics();
+  private final DoubleSolenoid m_Pneumatics = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 1, 0);
 
 
   private final Timer timer1 = new Timer();
@@ -46,6 +56,9 @@ public class Robot extends TimedRobot {
   private final XboxController driverController = new XboxController(0);
   private final XboxController operatorController = new XboxController(1);
 
+  //private boolean solenoidOpen = false;
+
+  double limit = 1;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -170,35 +183,38 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_Pneumatics.set(Value.kOff);
+  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     /*tank drive controls */
+    if(driverController.getRightStickButton()){
+      limit = 1;
+    }else if(driverController.getLeftStickButton()){
+      limit = .5;
+    }
     //left side controls
-    leftFront.set(driverController.getLeftY());
+    leftFront.set(driverController.getLeftY()*limit);
     leftRear.addFollower(leftFront);
     //right side controls
-    rightFront.set(-driverController.getRightY());
+    rightFront.set(-driverController.getRightY()*limit);
     rightRear.addFollower(rightFront);
     //-----------------------------------------------
     /*intake controls */
-    if(operatorController.getRightBumperPressed()){
-      intake1.set(.70);
+    if(driverController.getRightBumperPressed()){
+      intake1.set(.68);
       intake2.set(.80);
-
-     
-      //intake2.set(.98);
-    }else if(operatorController.getRightBumperReleased()){
+    }else if(driverController.getRightBumperReleased()){
       intake1.set(0);
       intake2.set(0);
     }
-    if(operatorController.getLeftBumperPressed()){
-      intake1.set(-.70);
-      intake2.set(-80);
-      //intake2.set(.98);
-    }else if(operatorController.getLeftBumperReleased()){
+    if(driverController.getLeftBumperPressed()){
+      intake1.set(-.68);
+      intake2.set(-.80);
+    }else if(driverController.getLeftBumperReleased()){
       intake1.set(0);
       intake2.set(0);
     }
@@ -211,18 +227,39 @@ public class Robot extends TimedRobot {
     }
     //-----------------------------------------------
     /*servo controls */
-    if(operatorController.getYButton()){
+     /*servo controls */
+     if(operatorController.getRightBumper()){
       exampleServo1.setPosition(.5);
     }else{
       exampleServo1.setPosition(1);
     }
+    //-----------------------------------------------
     /*note controls */
     if(operatorController.getYButtonPressed()){
-      Note.set(.80);
+      Note.set(.50);
+    }else if(operatorController.getYButtonReleased()){
+      Note.set(.0);
+    }
+    if(operatorController.getXButtonPressed()){
+      Note.set(-.75);
     }else if(operatorController.getXButtonReleased()){
       Note.set(.0);
     }
-
+    //-------------------------------------------------
+    /*pneumatics controls*/
+    // if(driverController.getAButton()){
+    //   m_Pneumatics.pneumatics.set(Value.kForward);
+    // }else{
+    //   m_Pneumatics.pneumatics.set(Value.kReverse);
+    // }
+    if(driverController.getAButtonPressed()){
+      m_Pneumatics.set(Value.kForward);
+    }
+    else if(driverController.getAButtonReleased()){
+      m_Pneumatics.set(Value.kReverse);
+    } else {
+      m_Pneumatics.set(Value.kOff);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
