@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.Timer;
 
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -44,7 +43,7 @@ public class Robot extends TimedRobot {
 
   private final PWMSparkMax shooter = new PWMSparkMax(6);
 
-  private final Servo exampleServo1 = new Servo(9);
+  private final Servo flicker = new Servo(9);
   private final PWMSparkMax Note = new PWMSparkMax(8);
 
   // private final Pneumatics m_Pneumatics = new Pneumatics();
@@ -166,12 +165,30 @@ public class Robot extends TimedRobot {
       case kDefaultAuto:
       default:
         // Put default auto code here
-        if(timer1.get() < 2.0){
-          leftFront.set(.4);
+        if(timer1.get() < 2.0){ //everything off
+          shooter.set(.0);
+          leftFront.set(0);
+          intake1.set(0);
+          intake2.set(0);
           leftRear.addFollower(leftFront);
-          rightFront.set(.4);
+          rightFront.set(0);
           rightRear.addFollower(rightFront); 
+        }else if(timer1.get() < 2.8){ //drive back a bit | plus intaking
+          leftFront.set(.16);
+          leftRear.addFollower(leftFront);
+          rightFront.set(-.13);
+          rightRear.addFollower(rightFront); 
+          intake1.set(.28);
+          intake2.set(.40);
+        }else if (timer1.get() < 3.0){ //shooter comes on
+          shooter.set(.99);
+        }else if (timer1.get() < 5.5) { //flicker flicking
+          flicker.setPosition(.5);
         }else{
+          flicker.setPosition(1);
+          intake1.set(0);
+          intake2.set(0);
+          shooter.set(0);
           leftFront.set(0);
           leftRear.addFollower(leftFront);
           rightFront.set(0);
@@ -229,9 +246,9 @@ public class Robot extends TimedRobot {
     /*servo controls */
      /*servo controls */
      if(operatorController.getRightBumper()){
-      exampleServo1.setPosition(.5);
+      flicker.setPosition(.5);
     }else{
-      exampleServo1.setPosition(1);
+      flicker.setPosition(1);
     }
     //-----------------------------------------------
     /*note controls */
